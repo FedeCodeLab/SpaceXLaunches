@@ -1,0 +1,57 @@
+---
+import Layout from "../../layouts/Layout.astro";
+export const prerender = false;
+import { getLatestLaunches, getLaunchBy } from "../../services/spacex";
+const { id } = Astro.params;
+console.log(id);
+const launch = await getLaunchBy({ id });
+
+const launchStatus = launch.status ? "Success" : "Failure";
+
+// export async function getStaticPaths() {
+//   const launches = await getLatestLaunches();
+//   return launches.map((launch) => ({
+//     params: { id: launch.id },
+//   }));
+// }
+
+console.log(launch);
+---
+
+<Layout title={`Lanzamiento ${id}`}>
+  <article class="flex gap-y-4 flex-col">
+    <img
+      class="w-52 h-auto mx-auto"
+      src={launch?.links?.patch.small}
+      alt={launch?.name}
+    />
+    <h1 class="text-4xl text-white font-bold">{launch?.name}</h1>
+    <h2 class="text-2xl text-white font-bold">
+      Launch #{launch?.flight_number}
+    </h2>
+    <span
+      class:list={[
+        "text-xs font-semibold mr-2 px-2.5 py-0.5 rounded max-w-20 text-center",
+        {
+          "bg-green-400 text-green-900": launch.success,
+          "bg-red-400 text-red-900": !launch.success,
+        },
+      ]}>{launchStatus}</span
+    >
+    <p class="text-lg">{launch?.details}</p>
+
+    <iframe
+      class="sm:w-full lg:w-3/5 min-h-80 h-auto my-3"
+      src={`https://www.youtube.com/embed/${launch?.links?.youtube_id}`}
+      title={launch?.name}
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen></iframe>
+
+    <p>
+      Para más detalles: <a
+        class="text-green-400"
+        href={launch?.links?.wikipedia}>{launch?.links?.wikipedia}</a
+      >
+    </p>
+  </article>
+</Layout>
